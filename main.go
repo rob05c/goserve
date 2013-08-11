@@ -3,20 +3,35 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"io/ioutil"
+	"flag"
+	"strconv"
 )
 
-func handler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Welcome to " + r.URL.Path[1:])
-}
-
-func indexHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Welcome to the index! sub " + r.URL.Path[1:])
+var port int
+func init() {
+	const (
+		defaultPort = 80
+		portUsage = "the port on which to serve the website"
+	)
+	flag.IntVar(&port, "port", defaultPort, portUsage)
+	flag.IntVar(&port, "p", defaultPort, portUsage + " (shorthand)")
+	flag.Parse()
 }
 
 func main() {
-	http.HandleFunc("/", handler)
-	http.HandleFunc("/index.html", indexHandler)
-	err := http.ListenAndServe(":80", nil)
+	index, err := ioutil.ReadFile("index.html")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	indexHandler := func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintf(w, string(index))
+	}
+
+	http.HandleFunc("/", indexHandler)
+	err = http.ListenAndServe(":" + strconv.Itoa(port), nil)
 	if err != nil {
 		fmt.Println(err)
 	}

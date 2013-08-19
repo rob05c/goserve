@@ -2,7 +2,7 @@
 
 body
 {
-    background: #f5f4ef;
+    background: #ffffff;
     color: #111111;
     font-family: Helvetica, Arial, sans-serif;
     font-size: 10pt;
@@ -150,7 +150,7 @@ img.left figure.left {float: left; margin: 0 0 2em 2em}
 /* footer */
 
 #contentinfo {
-    background: #ffffff;
+    background: #f5f4ef;
     color: #1b7ee0;
 /*    padding-bottom: 2em; */
     font-style: normal;
@@ -163,3 +163,4 @@ img.left figure.left {float: left; margin: 0 0 2em 2em}
     -moz-border-radius: 10px;
     -webkit-border-radius: 10px;
 }
+p

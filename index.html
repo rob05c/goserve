@@ -7,23 +7,25 @@
   </head>
   <body id="index" class="home">
     <header id="banner" class="body">
-      <h1><a href="#">Robert Butts <strong>personal portfolio & résumé</strong></a></h1>
+      <h1><a href="#">Robert Butts </a></h1>
+      <h2>personal portfolio website</h2>
       <nav><ul>
-	  <li class="active"><a href="#">home</a></li>
-	  <li class="active"><a href="#">projects</a></li>
-	  <li class="active"><a href="#">résumé</a></li>
-	  <li class="active"><a href="#">about</a></li>
-	  <li class="active"><a href="#">license</a></li>
+	  <li class="active"><a href="#" onclick="loadPage(this, 'home.txt', 'content')">home</a></li>o
+	  <li><a href="#" onclick="loadPage(event, 'projects.txt', 'content')">projects</a></li>
+	  <li><a href="#" onclick="loadPage(event, 'resume.txt', 'content')">résumé</a></li>
+	  <li><a href="#" onclick="loadPage(event, 'contact.txt', 'content')">contact</a></li>
+	  <li><a href="#" onclick="loadPage(event, 'about.txt', 'content')">about</a></li>
+	  <li><a href="#" onclick="loadPage(event, 'license.txt', 'content')">license</a></li>
       </ul></nav>
     </header>
-    <section id="content" class="body">I'm a software engineer with a B.S in Computer Science and 5 years' experience in application-level development. I'm currently working on my Masters, hoping to focus on parallel processing and distributed computing.<br /><br />
+    <section id="content" class="body">I'm a software engineer with a B.S. in Computer Science and 5 years' experience in application-level development. I'm currently working on my Masters, hoping to focus on parallel processing and distributed computing.<br /><br />
 
 My strongest language is C++. However, I consider myself a polyglot, and I believe a good software engineer should be able to learn any language necessary. I prefer functional programming, and am continually learning more about the paradigm.
     </section>
 
     <footer id="contentinfo" class="body">
-      <h2>Simplicity is Prerequisite for reliability<h2><h3>Edsger W. Dijkstra</h3>
-	  
+      <h3>Simplicity is prerequisite for reliability.<h3><h5>Edsger W. Dijkstra</h5>
     </footer>
   </body>
+  <script src="main.js"></script>
 </html>

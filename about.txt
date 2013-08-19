@@ -1,0 +1,3 @@
+This website is being served by a simple Go web server, which I wrote.
+<br /><br />
+The full source code for the server and site are available under the MIT license at <a href="https://github.com/robert-butts/goserve">github.com/robert-butts/goserve</a>.

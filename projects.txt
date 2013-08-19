@@ -1,0 +1,5 @@
+<a href="https://github.com/robert-butts">Github.com/robert-butts</a> has various projects of mine, including this server and website.
+<br /><br />
+<a href="https://code.google.com/p/gomud">Gomud</a> is a text game server written in Go. The mud itself is currently in its primordial stages and not terribly entertaining. However, the data structures are complete and serve to demonstrate parallel memory management via CSP. For a full list of features, see the project page.
+<br />
+To try out Gomud, simply point a telnet client to robert-butts.name:23

@@ -6,16 +6,23 @@ import (
 	"io/ioutil"
 	"flag"
 	"strconv"
+	"os"
+	"time"
 )
 
 var port int
+var log string
 func init() {
 	const (
+		defaultLog = ""
+		logUsage = "the log file"
 		defaultPort = 80
 		portUsage = "the port on which to serve the website"
 	)
 	flag.IntVar(&port, "port", defaultPort, portUsage)
 	flag.IntVar(&port, "p", defaultPort, portUsage + " (shorthand)")
+	flag.StringVar(&log, "log", defaultLog, logUsage)
+	flag.StringVar(&log, "l", defaultLog, logUsage + " (shorthand)")
 	flag.Parse()
 }
 
@@ -30,7 +37,47 @@ func NewFileServePath(file string, contentType string) (*ServePath, error) {
 	return &ServePath {Path: file, ContentType: contentType, Value: value}, err
 }
 
+func NewLogFileWriter(logFile string) chan string {
+	if logFile == "" {
+		return nil
+	}
+	logChan := make(chan string, 100)
+
+	megabyte := int64(1048576)
+	fileMax := megabyte * 100
+
+	fi, err := os.Create(logFile)
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+	go func() {
+		defer fi.Close()
+		for {
+			
+			stat, err := fi.Stat()
+			if err != nil && stat != nil && stat.Size() > fileMax {
+				fi.Seek(0, 0)
+				fi.Truncate(0)
+				fi.WriteString("(truncated)\n")
+			}
+			msg, ok := <-logChan
+			if !ok {
+				break
+			}
+			_, err = fi.WriteString(msg)
+			if err != nil {
+				fmt.Println(err)
+				break
+			}
+		}
+	}()
+	return logChan
+}
+
 func main() {
+	logChan := NewLogFileWriter(log)
+
 	// only specific files are served. A user can't just request an arbitrary file.
 	// @todo put this in a config file
 	files := map[string] string {
@@ -58,7 +105,9 @@ func main() {
 
 	makeHandler := func(s []byte, contentType string) (func(w http.ResponseWriter, r *http.Request)) {
 		return func(w http.ResponseWriter, r *http.Request) {
-			fmt.Println("serving " + r.URL.Path)
+			if logChan != nil {
+				logChan <- time.Now().String() + " " + r.RemoteAddr + "\n"
+			}
 			w.Header().Set("Content-Type", contentType)
 			fmt.Fprintf(w, "%s", s)
 		}
@@ -78,4 +127,5 @@ func main() {
 	if err != nil {
 		fmt.Println(err)
 	}
+	close(logChan)
 }

@@ -1,0 +1,12 @@
+{
+    "index.html": "text/html",
+    "main.css": "text/css",
+    "reset.css": "text/css",
+    "main.js": "text/javascript",
+    "favicon.ico": "image/x-icon",
+    "contact.txt": "application/octet-stream",
+    "license.txt": "application/octet-stream",
+    "projects.txt": "application/octet-stream",
+    "resume.txt": "application/octet-stream",
+    "home.txt": "application/octet-stream"
+}

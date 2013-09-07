@@ -1,3 +1,4 @@
+
 package main
 
 import (
@@ -8,22 +9,28 @@ import (
 	"os"
 	"strconv"
 	"time"
+	"encoding/json"
+	"errors"
 )
 
 var port int
 var log string
-
+var files string
 func init() {
 	const (
 		defaultLog  = ""
 		logUsage    = "the log file"
 		defaultPort = 80
 		portUsage   = "the port on which to serve the website"
+		defaultFiles = "files.json"
+		filesUsage = "the file which contains a json object of file names to serve and their content types"
 	)
 	flag.IntVar(&port, "port", defaultPort, portUsage)
 	flag.IntVar(&port, "p", defaultPort, portUsage+" (shorthand)")
 	flag.StringVar(&log, "log", defaultLog, logUsage)
 	flag.StringVar(&log, "l", defaultLog, logUsage+" (shorthand)")
+	flag.StringVar(&files, "files", defaultFiles, filesUsage)
+	flag.StringVar(&files, "f", defaultFiles, filesUsage+" (shorthand)")
 	flag.Parse()
 }
 
@@ -76,26 +83,43 @@ func NewLogFileWriter(logFile string) chan string {
 	return logChan
 }
 
+func parseFiles(j []byte) (map[string]string, error) {
+	var raw interface{}
+	err := json.Unmarshal(j, &raw)
+	if err != nil {
+		return nil, err
+	}
+	rawMap, ok := raw.(map[string]interface{})
+	if !ok {
+		return nil, errors.New("file was not JSON object")
+	}
+	fileMap := make(map[string]string)
+	for k, v := range rawMap {
+		vs, ok := v.(string)
+		if !ok {
+			continue
+		}
+		fileMap[k] = vs
+	}
+	return fileMap, nil
+}
+
 func main() {
 	logChan := NewLogFileWriter(log)
 
-	// only specific files are served. A user can't just request an arbitrary file.
-	// @todo put this in a config file
-	files := map[string]string{
-		"index.html":   "text/html", // the first entry will be served at the root
-		"main.css":     "text/css",
-		"reset.css":    "text/css",
-		"main.js":      "text/javascript",
-		"home.txt":     "application/octet-stream",
-		"projects.txt": "application/octet-stream",
-		"resume.txt":   "application/octet-stream",
-		"contact.txt":  "application/octet-stream",
-		"about.txt":    "application/octet-stream",
-		"license.txt":  "application/octet-stream",
-		"favicon.ico":  "image/x-icon",
+	jsonFile, err := ioutil.ReadFile(files)
+	if err != nil {
+		fmt.Println("Could not find list file '" + files + "'. Nothing to serve.")
+		return
+	}
+	fileMap, err := parseFiles(jsonFile)
+	if err != nil {
+		fmt.Println("Error reading list file. Nothing to serve.")
+		fmt.Println(err)
+		return
 	}
 	paths := make(map[string]*ServePath, 0)
-	for file, contentType := range files {
+	for file, contentType := range fileMap {
 		path, err := NewFileServePath(file, contentType)
 		if err != nil {
 			fmt.Println(err)
@@ -124,7 +148,7 @@ func main() {
 	for _, path := range paths {
 		http.HandleFunc("/"+path.Path, makeHandler(path.Value, path.ContentType))
 	}
-	err := http.ListenAndServe(":"+strconv.Itoa(port), nil)
+	err = http.ListenAndServe(":"+strconv.Itoa(port), nil)
 	if err != nil {
 		fmt.Println(err)
 	}
